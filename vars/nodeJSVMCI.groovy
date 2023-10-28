@@ -1,4 +1,8 @@
-pipeline {
+def call(Map configMap){
+    // mapName.get(""key-name)
+    def component = configMap.get("component")
+    echo "component is ${component}"
+    pipeline {
     agent { node { label 'AGENT-1' } }
     environment{
         //here if you create any variable you will have global access, since it is environment no need of def
@@ -37,7 +41,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'ls -ltr'
-                sh "zip -r ${params.component}.zip ./* --exclude=.git --exclude=.zip"
+                sh "zip -r ${component}.zip ./* --exclude=.git --exclude=.zip"
             }
         }
         stage('SAST') {
@@ -54,12 +58,12 @@ pipeline {
                     nexusUrl: '52.87.243.88:8081/',
                     groupId: 'com.roboshop',
                     version: "$packageVersion",
-                    repository: "${params.component}",
+                    repository: "${component}",
                     credentialsId: 'nexus-auth',
                     artifacts: [
-                        [artifactId: "${params.component}",
+                        [artifactId: "${component}",
                         classifier: '',
-                        file: "${params.component}.zip",
+                        file: "${component}.zip",
                         type: 'zip']
                     ]
                 )
@@ -74,7 +78,7 @@ pipeline {
                     def params = [
                         string(name: 'version', value: "$packageVersion")
                     ]
-                    build job: "../${params.component}-deploy", wait: true, parameters: params
+                    build job: "../${component}-deploy", wait: true, parameters: params
             }
         }    
         }
@@ -85,5 +89,6 @@ pipeline {
             echo 'cleaning up workspace'
             deleteDir()
         }
+    }
     }
 }
