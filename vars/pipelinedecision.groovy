@@ -8,7 +8,7 @@ def decidepipeline(Map configMap){
             //nodeJSVMCI(configMap) 
             
         break
-        case 'javaVM'
+        case 'javaVM':
             javaVMCI(configMap)
         break
         default:
